@@ -9,8 +9,20 @@ namespace RecordEquality.Tests.Models;
 /// <param name="values">The values to initialize the collection with.</param>
 /// <typeparam name="T">The type of the values in the collection.</typeparam>
 public class ValueCollection<T>(params IList<T> values)
-    : ReadOnlyCollection<T>(new List<T>(values))
+    : ReadOnlyCollection<T>(new List<T>(values)),
+        IEnumerable<T>, IEquatable<ValueCollection<T>>, ICloneable 
 {
+    /// <summary>
+    /// Indexer to access items in the collection.
+    /// </summary>
+    /// <param name="index">The index of the item to get or set.</param>
+    /// <returns>The item at the specified index.</returns>
+    public T this[Index index]
+    {
+        get => Items[index];
+        set => Items[index] = value;
+    }
+    
     /// <summary>
     /// Adds an item to the collection.
     /// </summary>
@@ -41,8 +53,27 @@ public class ValueCollection<T>(params IList<T> values)
             return true;
         }
         
-        return obj is ValueCollection<T> other
-               && other.Items.SequenceEqual(Items);
+        return obj is ValueCollection<T> other && Equals(other);
+    }
+
+    /// <summary>
+    /// Determines whether the specified ValueCollection is equal to the current ValueCollection by comparing the items.
+    /// </summary>
+    /// <param name="other">The ValueCollection to compare with the current ValueCollection.</param>
+    /// <returns>true if the specified ValueCollection is equal to the current ValueCollection; otherwise, false.</returns>
+    public bool Equals(ValueCollection<T>? other)
+    {
+        if (ReferenceEquals(null, other))
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other))
+        {
+            return true;
+        }
+
+        return Items.SequenceEqual(other.Items);
     }
 
     /// <inheritdoc />
@@ -82,5 +113,38 @@ public class ValueCollection<T>(params IList<T> values)
         sb.Append(" ]");
         
         return sb.ToString();
+    }
+
+    /// <inheritdoc />
+    public object Clone()
+    {
+        return new ValueCollection<T>(Items);
+    }
+
+    /// <summary>
+    /// Provides an enumerator for the collection.
+    /// </summary>
+    /// <returns>An enumerator for the collection.</returns>
+    public new IEnumerator<T> GetEnumerator()
+    {
+        return Items.GetEnumerator();
+    }
+
+    /// <summary>
+    /// Implicitly converts an array of items into a ValueCollection.
+    /// </summary>
+    /// <param name="items">The items to convert.</param>
+    public static implicit operator ValueCollection<T>(T[] items)
+    {
+        return new ValueCollection<T>(items);
+    }
+
+    /// <summary>
+    /// Implicitly converts a list of items into a ValueCollection.
+    /// </summary>
+    /// <param name="items">The items to convert.</param>
+    public static implicit operator ValueCollection<T>(List<T> items)
+    {
+        return new ValueCollection<T>(items);
     }
 }
