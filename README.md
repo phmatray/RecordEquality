@@ -117,7 +117,7 @@ public void TestGoodOrderEquality()
 
 1. Clone the repository:
    ```sh
-   git clone <repository-url>
+   git clone https://github.com/phmatray/RecordEquality.git
    ```
 2. Open the solution in Visual Studio or your preferred C# IDE.
 3. Build the solution to restore dependencies.
